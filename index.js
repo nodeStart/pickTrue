@@ -16,7 +16,7 @@ let _execFn = function (fn) {
     return fn
 }
 
-let pickTrue = (...args) => {
+let pickTrue = (isToStr, ...args) => {
     let trueCollections = []
     let len = args.length
 
@@ -29,8 +29,8 @@ let pickTrue = (...args) => {
         if (type === 'string' || type === 'number') {
             trueCollections.push(arg)
         } else if (Array.isArray(arg) && arg.length) {
-            let arrayReturn = pickTrue.apply(null, arg)   // 使用apply 保证了pickTrue 里面为一系列的参数
-            trueCollections.push(arrayReturn)
+            let arrayReturn = pickTrue.apply(null, [false, ...arg])   // 使用apply 保证了pickTrue 里面为一系列的参数
+            trueCollections.push(...arrayReturn)
         } else if (_isPlainObj(arg)) {
             for (let k in arg) {
                 if (arg.hasOwnProperty(k) && _execFn(arg[k])) {
@@ -39,12 +39,12 @@ let pickTrue = (...args) => {
             }
         } else if (type == 'function') {
             let fnReturn = arg()
-            let fnResult = pickTrue.apply(null, [fnReturn])
+            let fnResult = pickTrue.apply(null, [true, fnReturn])
             trueCollections.push(fnResult)
         }
     }
 
-    return trueCollections.join(' ')
+    return isToStr ? trueCollections.join(' ') : trueCollections
 }
 
 
